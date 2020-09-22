@@ -5,7 +5,7 @@ import tempfile
 from uuid import uuid4
 from PIL import Image
 from pdf2image import convert_from_path
-from pytesseract import image_to_string, TesseractError
+from pytesseract import image_to_string, TesseractError, image_to_osd, Output
 import base64
 
 
@@ -76,9 +76,20 @@ class ImageProcessor:
                     os.remove(extracted_image)
         return text
 
-    def extract_text_from_image(self, filename):
+    def extract_text_from_image(self, filename, autorotate=False):
         try:
-            text = image_to_string(Image.open(filename), lang=self.LANGUAGE)
+            img = Image.open(filename)
+            text = image_to_string(img, lang=self.LANGUAGE)
+            rot_data = image_to_osd(img, output_type=Output.DICT)
+            if autorotate:
+                degrees_to_rotate = rot_data["orientation"]
+                if degrees_to_rotate != 0:
+                    self.rotate_image(filename, degrees_to_rotate)
+                    # need to re-run the OCR after rotating
+                    img = Image.open(filename)
+                    text = image_to_string(img, lang=self.LANGUAGE)
+                    print(f"Rotated image {degrees_to_rotate} degrees")
+
         except TesseractError as e:
             text = "\nCheck Tesseract OCR Configuration\n"
             text += e.message
