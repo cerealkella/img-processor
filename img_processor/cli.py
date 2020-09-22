@@ -7,7 +7,7 @@ import click
 def main(args=None):
     """Console script for img_processor."""
     click.echo(
-        "Replace this message by putting your code into " "img_processor.cli.main"
+        "Running img_processor.cli.main..."
     )
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
