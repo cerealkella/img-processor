@@ -13,13 +13,11 @@ class ImageProcessor:
     def __init__(self, language="eng"):
         self.set_language(language)
         self.TEMP_PATH = tempfile.gettempdir()
-        print(f"Temp Path: {self.TEMP_PATH}")
         self.PREVIEWFILE = ""
         self.PAGE_COUNT = 0
 
     def set_language(self, language):
         self.LANGUAGE = language
-        print(f"Language: {self.LANGUAGE}")
 
     def open_pdf(self, filename):
         try:
