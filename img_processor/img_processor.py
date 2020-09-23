@@ -83,7 +83,8 @@ class ImageProcessor:
             rot_data = image_to_osd(img, output_type=Output.DICT)
             if autorotate:
                 degrees_to_rotate = rot_data["orientation"]
-                if degrees_to_rotate != 0:
+                # rotate if text is extracted with reasonable confidence
+                if degrees_to_rotate != 0 and rot_data["orientation_conf"] > 2:
                     self.rotate_image(filename, degrees_to_rotate)
                     # need to re-run the OCR after rotating
                     img = Image.open(filename)
