@@ -6,9 +6,7 @@ import click
 @click.command()
 def main(args=None):
     """Console script for img_processor."""
-    click.echo(
-        "Running img_processor.cli.main..."
-    )
+    click.echo("Running img_processor.cli.main...")
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
 
