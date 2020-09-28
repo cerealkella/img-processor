@@ -50,6 +50,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/kellerjustin/img_processor",
-    version="0.5.0",
+    version="version='0.6.0'",
     zip_safe=False,
 )
