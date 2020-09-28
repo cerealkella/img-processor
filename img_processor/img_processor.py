@@ -74,9 +74,31 @@ class ImageProcessor:
                     os.remove(extracted_image)
         return text
 
-    def extract_text_from_image(self, filename, autorotate=False):
+    def open_image(self, filename):
         try:
             img = Image.open(filename)
+            return img
+        except OSError:
+            print("Image not fully written")
+            return None
+
+    def image_valid(self, filename):
+        img = self.open_image(filename)
+        if img is None:
+            del img
+            return False
+        else:
+            try:
+                img.verify()
+                del img
+            except OSError:
+                return False
+            # if no exception is thrown, we have a valid image
+            return True
+
+    def extract_text_from_image(self, filename, autorotate=False):
+        try:
+            img = self.open_image(filename)
             text = image_to_string(img, lang=self.LANGUAGE)
             rot_data = image_to_osd(img, output_type=Output.DICT)
             if autorotate:
