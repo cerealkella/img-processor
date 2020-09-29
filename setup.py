@@ -12,6 +12,9 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "Click>=7.0",
+    "pytesseract",
+    "pdf2image",
+    "PyPDF2",
 ]
 
 setup_requirements = [
