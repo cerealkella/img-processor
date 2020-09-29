@@ -18,3 +18,9 @@ History
 ------------------
 
 * Adds additional validation and error handling
+
+
+0.7.0 (2020-09-29)
+------------------
+
+* Fixes missing requirements in setup.py
