@@ -3,7 +3,7 @@ import PyPDF2
 import os
 import tempfile
 from uuid import uuid4
-from PIL import Image
+from PIL import Image, TiffImagePlugin
 from pdf2image import convert_from_path
 from pytesseract import image_to_string, TesseractError, image_to_osd, Output
 import base64
@@ -127,3 +127,44 @@ class ImageProcessor:
         out = im.rotate(angle, expand=True)
         # overwrite the file
         out.save(filename)
+
+    def convert_pdf_to_tiff(self, filename, delete_original=False):
+        self.open_pdf(filename)
+        i = 0
+        list_file = []
+        basefile = os.path.basename(filename)
+        title = os.path.splitext(basefile)[0]
+        new_files = []
+        while i < self.PAGE_COUNT:
+            pages = convert_from_path(filename, 200)
+            # Save Cover Sheet as Separate File
+            if i == 0:
+                new_filename = f"{title}-coversheet.tif"
+                pages[i].save(new_filename, "TIFF", compression="jpeg")
+                new_files.append(new_filename)
+
+            else:  # Handle remaining pages
+                tempfile = f"temp_{title}-{i}.tif"
+                list_file.append(tempfile)
+                pages[i].save(tempfile, "TIFF", compression="jpeg")
+            i += 1
+            pages.clear()
+        if self.PAGE_COUNT > 1:
+            new_filename = f"{title}.tif"
+            with TiffImagePlugin.AppendingTiffWriter(new_filename, True) as tf:
+                for tiff_in in list_file:
+                    try:
+                        im = Image.open(tiff_in)
+                        im.save(tf)
+                        tf.newFrame()
+                        im.close()
+                    finally:
+                        os.remove(tiff_in)  # delete temp file
+                        pass
+            new_files.append(new_filename)
+        print("Conversion complete!")
+        if delete_original:
+            print("Removing original PDF...")
+            os.remove(filename)
+            print("Local PDF deleted!")
+        return new_files
