@@ -24,3 +24,8 @@ History
 ------------------
 
 * Fixes missing requirements in setup.py
+
+0.8.0 (2021-01-29)
+------------------
+
+* Adds tiff conversion function
