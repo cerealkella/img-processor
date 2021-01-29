@@ -1,3 +1,4 @@
+libtiff
 pytesseract
 pdf2image
 PyPDF2
