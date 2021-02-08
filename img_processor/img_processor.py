@@ -2,10 +2,13 @@
 import PyPDF2
 import os
 import tempfile
+import cv2
+import mimetypes
 from uuid import uuid4
 from PIL import Image, TiffImagePlugin
 from pdf2image import convert_from_path
 from pytesseract import image_to_string, TesseractError, image_to_osd, Output
+from typing import List
 import base64
 
 
@@ -168,3 +171,62 @@ class ImageProcessor:
             os.remove(filename)
             print("Local PDF deleted!")
         return new_files
+
+    def get_images_in_a_directory(self, filepath: str) -> List[str]:
+        """pass in a filepath to get a sorted list of images in a dir
+
+        Args:
+            filepath (str): path to images
+
+        Returns:
+            List[str]: sorted list of image files
+        """
+        all_files = os.listdir(filepath)
+        files = []
+        for f in all_files:
+            if os.path.isfile(os.path.join(filepath, f)):
+                datatype = mimetypes.guess_type(f)
+                if datatype[0] is not None:
+                    if datatype[0][:5] == "image":
+                        files.append(os.path.join(filepath, f))
+        return sorted(files)
+
+    def make_movie(self, filepath: str, moviename="video", fps=25.0) -> str:
+        """Make a movie from a bunch of images in a folder!
+
+        Args:
+            filepath (String): Pass in the file path where the images are.
+                               JPEGs work for sure, any image should do.
+            fps (float, optional): Frames per seconds. Higher values make
+                               for faster videos. Defaults to 25.0.
+            moviename (string, optional): pass in the new file path name for
+                               newly generated movie, which will be placed
+                               in the same path as the images.
+
+        Returns:
+            str: name of new movie file
+        """
+        image_files = self.get_images_in_a_directory(filepath)
+        images = []
+        for img in image_files:
+            images.append(cv2.imread(img))
+
+        height, width, layers = images[1].shape
+
+        if moviename == "video":
+            # Default value, just append to the image path
+            outputvid = os.path.join(filepath, f"{moviename}.avi")
+        else:
+            # TODO: check to ensure we have a valid, writeable path
+            outputvid = moviename
+
+        video = cv2.VideoWriter(
+            outputvid, 0, fps, (width, height)
+        )
+
+        for img in images:
+            video.write(img)
+
+        cv2.destroyAllWindows()
+        video.release()
+        return outputvid

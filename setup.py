@@ -11,10 +11,13 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
+    "numpy",
     "Click>=7.0",
     "pytesseract",
     "pdf2image",
     "PyPDF2",
+    "libtiff",
+    "opencv-python",
 ]
 
 setup_requirements = [
@@ -41,7 +44,11 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     description="Python package for taking an image and doing a thing",
-    entry_points={"console_scripts": ["img_processor=img_processor.cli:main",],},
+    entry_points={
+        "console_scripts": [
+            "img_processor=img_processor.cli:main",
+        ],
+    },
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,
@@ -53,6 +60,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/kellerjustin/img_processor",
-    version="version='0.8.0'",
+    version="0.8.0",
     zip_safe=False,
 )

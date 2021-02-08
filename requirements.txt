@@ -1,4 +1,7 @@
+numpy
+Click
 libtiff
 pytesseract
 pdf2image
 PyPDF2
+opencv-python
