@@ -42,3 +42,4 @@ History
 ------------------
 
 * Adds compression to make_movie function
+
