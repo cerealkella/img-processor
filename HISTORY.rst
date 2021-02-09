@@ -39,7 +39,7 @@ History
 
 
 0.10.0 (2021-02-09)
-------------------
+-------------------
 
 * Adds compression to make_movie function
 
