@@ -201,7 +201,8 @@ class ImageProcessor:
                                for faster videos. Defaults to 25.0.
             moviename (string, optional): pass in the new file path name for
                                newly generated movie, which will be placed
-                               in the same path as the images.
+                               in the same path as the images. If specifying
+                               the moviename, include the .mp4 extension.
 
         Returns:
             str: name of new movie file
@@ -215,13 +216,17 @@ class ImageProcessor:
 
         if moviename == "video":
             # Default value, just append to the image path
-            outputvid = os.path.join(filepath, f"{moviename}.avi")
+            outputvid = os.path.join(filepath, f"{moviename}.mp4")
         else:
             # TODO: check to ensure we have a valid, writeable path
             outputvid = moviename
 
+        # Set an encoding so we don't have an enormous output file
+        # to skip compression, set fourcc to 0
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
         video = cv2.VideoWriter(
-            outputvid, 0, fps, (width, height)
+            outputvid, fourcc, fps, (width, height)
         )
 
         for img in images:

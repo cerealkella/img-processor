@@ -25,7 +25,20 @@ History
 
 * Fixes missing requirements in setup.py
 
+
 0.8.0 (2021-01-29)
 ------------------
 
 * Adds tiff conversion function
+
+
+0.9.0 (2021-02-08)
+------------------
+
+* Adds movie creation function to make time lapse movies from image files
+
+
+0.10.0 (2021-02-09)
+------------------
+
+* Adds compression to make_movie function
