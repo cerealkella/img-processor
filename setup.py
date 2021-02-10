@@ -11,12 +11,12 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "numpy",
+    "numpy>=1.20.1",
+    "Pillow>=8.1.0",
     "Click>=7.0",
-    "pytesseract",
-    "pdf2image",
-    "PyPDF2",
-    "libtiff",
+    "pytesseract>=0.3.7",
+    "pdf2image>=1.14.0",
+    "PyPDF2>=1.26.0",
     "opencv-python",
 ]
 

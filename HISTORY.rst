@@ -43,3 +43,8 @@ History
 
 * Adds compression to make_movie function
 
+
+0.11.0 (2021-02-10)
+-------------------
+
+* Cleans up requirements, removing libtiff and pinning versions
