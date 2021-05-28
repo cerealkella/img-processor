@@ -1,14 +1,15 @@
 """Main module."""
 import PyPDF2
 import os
+import datetime
+import time
 import tempfile
-import cv2
 import mimetypes
 from uuid import uuid4
-from PIL import Image, TiffImagePlugin
+from PIL import Image, TiffImagePlugin, ImageFont, ImageDraw
 from pdf2image import convert_from_path
 from pytesseract import image_to_string, TesseractError, image_to_osd, Output
-from typing import List
+from reportlab.pdfgen import canvas
 import base64
 
 
@@ -18,6 +19,99 @@ class ImageProcessor:
         self.TEMP_PATH = tempfile.gettempdir()
         self.PREVIEWFILE = ""
         self.PAGE_COUNT = 0
+
+    def _get_tmp_filename(self, suffix=".pdf"):
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as fh:
+            return fh.name
+
+    def _get_output_filename(self, input_file):
+        output_filename = "{}_signed{}".format(
+                *os.path.splitext(input_file)
+            )
+        return output_filename
+    
+    def _create_sig(self, signature):
+        img = Image.new('RGBA', (735, 150))
+        draw = ImageDraw.Draw(img)
+        sigfont = ImageFont.truetype("fonts/HoneyScript-SemiBold.ttf", 70)
+        draw.text((20, 30), signature, (0, 0, 200), font=sigfont)
+        outputfile = "signature.png"
+        img.save(outputfile, 'PNG')
+        return outputfile
+
+    def sign_pdf(self, pdf, signature, text, coords, sigdate=False):
+        # for y coord, pass in pixels from top of page, as the logic
+        # of c.drawImage measures from the bottom to the top. I don't know why
+        page_num, x1, y, width, height = [int(a) for a in coords.split("x")]
+        page_num -= 1
+
+        output_filename = self._get_output_filename(pdf)
+
+        pdf_fh = open(pdf, 'rb')
+        sig_tmp_fh = None
+
+        pdf = PyPDF2.PdfFileReader(pdf_fh)
+        # Set y1 to pixels from top of page
+        y1 = int(pdf.getPage(page_num).mediaBox[3] - y)
+        print(pdf.getPage(page_num).mediaBox)
+        print(y1)
+        writer = PyPDF2.PdfFileWriter()
+        sig_tmp_filename = None
+
+        for i in range(0, pdf.getNumPages()):
+            page = pdf.getPage(i)
+
+            if i == page_num:
+                # Create PDF for signature
+                sig_tmp_filename = self._get_tmp_filename()
+                c = canvas.Canvas(sig_tmp_filename, pagesize=page.cropBox)
+                c.drawImage(signature, x1, y1, width, height, mask='auto')
+                if text != "" and text is not None:
+                    c.drawString(x1, y1, text)  # text above signature
+                if sigdate:
+                    c.drawString(x1, y1 - 32,
+                                datetime.datetime.now().strftime("%Y-%m-%d"))
+                c.showPage()
+                c.save()
+
+                # Merge PDF in to original page
+                sig_tmp_fh = open(sig_tmp_filename, 'rb')
+                sig_tmp_pdf = PyPDF2.PdfFileReader(sig_tmp_fh)
+                sig_page = sig_tmp_pdf.getPage(0)
+                sig_page.mediaBox = page.mediaBox
+                page.mergePage(sig_page)
+
+            writer.addPage(page)
+
+        with open(output_filename, 'wb') as fh:
+            writer.write(fh)
+
+        for handle in [pdf_fh, sig_tmp_fh]:
+            if handle:
+                handle.close()
+        if sig_tmp_filename:
+            os.remove(sig_tmp_filename)
+        return output_filename
+    
+    def sign_image(self, img_file, signature, text):
+        img = Image.open(img_file)
+        draw = ImageDraw.Draw(img)
+        glfont = ImageFont.truetype("fonts/Roboto-Black.ttf", 16)
+        sigfont = ImageFont.truetype("fonts/HoneyScript-SemiBold.ttf", 40)
+        draw.text((200, 10), signature, (0, 0, 0), font=sigfont)
+        draw.text((200, 50), text, (0, 0, 200), font=glfont)
+        output_filename = self._get_output_filename(img_file)
+        img.save(output_filename)
+        return output_filename
+
+    def sign_invoice(self, input_file, sig_name, text):
+        filename, file_extension = os.path.splitext(input_file)
+        if file_extension.lower() == ".pdf":
+            sigfile = self._create_sig(sig_name)
+            signed_file = self.sign_pdf(input_file, sigfile, text, "1x125x40x150x40")
+        else:
+            signed_file = self.sign_image(input_file, sig_name, text)
+        return signed_file
 
     def set_language(self, language):
         self.LANGUAGE = language
@@ -171,67 +265,3 @@ class ImageProcessor:
             os.remove(filename)
             print("Local PDF deleted!")
         return new_files
-
-    def get_images_in_a_directory(self, filepath: str) -> List[str]:
-        """pass in a filepath to get a sorted list of images in a dir
-
-        Args:
-            filepath (str): path to images
-
-        Returns:
-            List[str]: sorted list of image files
-        """
-        all_files = os.listdir(filepath)
-        files = []
-        for f in all_files:
-            if os.path.isfile(os.path.join(filepath, f)):
-                datatype = mimetypes.guess_type(f)
-                if datatype[0] is not None:
-                    if datatype[0][:5] == "image":
-                        files.append(os.path.join(filepath, f))
-        return sorted(files)
-
-    def make_movie(self, filepath: str, moviename="video", fps=25.0) -> str:
-        """Make a movie from a bunch of images in a folder!
-
-        Args:
-            filepath (String): Pass in the file path where the images are.
-                               JPEGs work for sure, any image should do.
-            fps (float, optional): Frames per seconds. Higher values make
-                               for faster videos. Defaults to 25.0.
-            moviename (string, optional): pass in the new file path name for
-                               newly generated movie, which will be placed
-                               in the same path as the images. If specifying
-                               the moviename, include the .mp4 extension.
-
-        Returns:
-            str: name of new movie file
-        """
-        image_files = self.get_images_in_a_directory(filepath)
-        images = []
-        for img in image_files:
-            images.append(cv2.imread(img))
-
-        height, width, layers = images[1].shape
-
-        if moviename == "video":
-            # Default value, just append to the image path
-            outputvid = os.path.join(filepath, f"{moviename}.mp4")
-        else:
-            # TODO: check to ensure we have a valid, writeable path
-            outputvid = moviename
-
-        # Set an encoding so we don't have an enormous output file
-        # to skip compression, set fourcc to 0
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-
-        video = cv2.VideoWriter(
-            outputvid, fourcc, fps, (width, height)
-        )
-
-        for img in images:
-            video.write(img)
-
-        cv2.destroyAllWindows()
-        video.release()
-        return outputvid
