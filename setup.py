@@ -17,7 +17,6 @@ requirements = [
     "pytesseract>=0.3.7",
     "pdf2image>=1.14.0",
     "PyPDF2>=1.26.0",
-    "opencv-python",
 ]
 
 setup_requirements = [
