@@ -197,7 +197,7 @@ class ImageProcessor:
         try:
             img = self.open_image(filename)
             text = image_to_string(img, lang=self.LANGUAGE)
-            rot_data = image_to_osd(img, output_type=Output.DICT)
+            rot_data = image_to_osd(filename, output_type=Output.DICT)
             if autorotate:
                 degrees_to_rotate = rot_data["orientation"]
                 # rotate if text is extracted with reasonable confidence
