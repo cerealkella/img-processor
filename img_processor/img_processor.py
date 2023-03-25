@@ -7,7 +7,7 @@ import tempfile
 import time
 from uuid import uuid4
 
-import PyPDF2
+import pypdf
 from pdf2image import convert_from_path
 from PIL import Image, ImageDraw, ImageFont, TiffImagePlugin
 from pytesseract import Output, TesseractError, image_to_osd, image_to_string
@@ -26,18 +26,16 @@ class ImageProcessor:
             return fh.name
 
     def _get_output_filename(self, input_file):
-        output_filename = "{}_signed{}".format(
-                *os.path.splitext(input_file)
-            )
+        output_filename = "{}_signed{}".format(*os.path.splitext(input_file))
         return output_filename
-    
+
     def _create_sig(self, signature):
-        img = Image.new('RGBA', (735, 150))
+        img = Image.new("RGBA", (735, 150))
         draw = ImageDraw.Draw(img)
         sigfont = ImageFont.truetype("fonts/HoneyScript-SemiBold.ttf", 70)
         draw.text((20, 30), signature, (0, 0, 200), font=sigfont)
         outputfile = "signature.png"
-        img.save(outputfile, 'PNG')
+        img.save(outputfile, "PNG")
         return outputfile
 
     def sign_pdf(self, pdf, signature, text, coords, sigdate=False):
@@ -48,15 +46,15 @@ class ImageProcessor:
 
         output_filename = self._get_output_filename(pdf)
 
-        pdf_fh = open(pdf, 'rb')
+        pdf_fh = open(pdf, "rb")
         sig_tmp_fh = None
 
-        pdf = PyPDF2.PdfFileReader(pdf_fh)
+        pdf = pypdf.PdfFileReader(pdf_fh)
         # Set y1 to pixels from top of page
         y1 = int(pdf.getPage(page_num).mediaBox[3] - y)
         print(pdf.getPage(page_num).mediaBox)
         print(y1)
-        writer = PyPDF2.PdfFileWriter()
+        writer = pypdf.PdfFileWriter()
         sig_tmp_filename = None
 
         for i in range(0, pdf.getNumPages()):
@@ -66,25 +64,26 @@ class ImageProcessor:
                 # Create PDF for signature
                 sig_tmp_filename = self._get_tmp_filename()
                 c = canvas.Canvas(sig_tmp_filename, pagesize=page.cropBox)
-                c.drawImage(signature, x1, y1, width, height, mask='auto')
+                c.drawImage(signature, x1, y1, width, height, mask="auto")
                 if text != "" and text is not None:
                     c.drawString(x1, y1, text)  # text above signature
                 if sigdate:
-                    c.drawString(x1, y1 - 32,
-                                datetime.datetime.now().strftime("%Y-%m-%d"))
+                    c.drawString(
+                        x1, y1 - 32, datetime.datetime.now().strftime("%Y-%m-%d")
+                    )
                 c.showPage()
                 c.save()
 
                 # Merge PDF in to original page
-                sig_tmp_fh = open(sig_tmp_filename, 'rb')
-                sig_tmp_pdf = PyPDF2.PdfFileReader(sig_tmp_fh)
+                sig_tmp_fh = open(sig_tmp_filename, "rb")
+                sig_tmp_pdf = pypdf.PdfFileReader(sig_tmp_fh)
                 sig_page = sig_tmp_pdf.getPage(0)
                 sig_page.mediaBox = page.mediaBox
                 page.mergePage(sig_page)
 
             writer.addPage(page)
 
-        with open(output_filename, 'wb') as fh:
+        with open(output_filename, "wb") as fh:
             writer.write(fh)
 
         for handle in [pdf_fh, sig_tmp_fh]:
@@ -93,7 +92,7 @@ class ImageProcessor:
         if sig_tmp_filename:
             os.remove(sig_tmp_filename)
         return output_filename
-    
+
     def sign_image(self, img_file, signature, text):
         img = Image.open(img_file)
         draw = ImageDraw.Draw(img)
@@ -120,10 +119,10 @@ class ImageProcessor:
     def open_pdf(self, filename):
         try:
             pdfFileObject = open(filename, "rb")
-            pdf_reader = PyPDF2.PdfFileReader(pdfFileObject, strict=False)
+            pdf_reader = pypdf.PdfFileReader(pdfFileObject, strict=False)
             self.PAGE_COUNT = pdf_reader.numPages
             return pdf_reader
-        except PyPDF2.utils.PdfReadError:
+        except pypdf.errors.PdfReadError:
             print("PDF not fully written - no EOF Marker")
             return None
 

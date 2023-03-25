@@ -16,7 +16,7 @@ requirements = [
     "Click>=7.0",
     "pytesseract>=0.3.7",
     "pdf2image>=1.14.0",
-    "PyPDF2>=1.26.0",
+    "pypdf>=3.6.0",
     "reportlab==3.6.7",
 ]
 
