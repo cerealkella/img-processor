@@ -57,7 +57,7 @@ class ImageProcessor:
         writer = pypdf.PdfFileWriter()
         sig_tmp_filename = None
 
-        for i in range(0, pdf.getNumPages()):
+        for i in range(0, len(pdf.pages)):
             page = pdf.getPage(i)
 
             if i == page_num:
@@ -120,7 +120,7 @@ class ImageProcessor:
         try:
             pdfFileObject = open(filename, "rb")
             pdf_reader = pypdf.PdfReader(pdfFileObject, strict=False)
-            self.PAGE_COUNT = pdf_reader.numPages
+            self.PAGE_COUNT = len(pdf_reader.pages)
             return pdf_reader
         except pypdf.errors.PdfReadError:
             print("PDF not fully written - no EOF Marker")
