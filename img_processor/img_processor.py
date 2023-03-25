@@ -1,10 +1,8 @@
 """Main module."""
 import base64
 import datetime
-import mimetypes
 import os
 import tempfile
-import time
 from uuid import uuid4
 
 import pypdf
@@ -22,7 +20,7 @@ class ImageProcessor:
         self.PAGE_COUNT = 0
 
     def _get_tmp_filename(self, suffix=".pdf"):
-        with tempfile.NamedTemporaryFile(suffix=".pdf") as fh:
+        with tempfile.NamedTemporaryFile(suffix) as fh:
             return fh.name
 
     def _get_output_filename(self, input_file):
@@ -257,7 +255,6 @@ class ImageProcessor:
                         im.close()
                     finally:
                         os.remove(tiff_in)  # delete temp file
-                        pass
             new_files.append(new_filename)
         print("Conversion complete!")
         if delete_original:
