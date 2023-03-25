@@ -49,7 +49,7 @@ class ImageProcessor:
         pdf_fh = open(pdf, "rb")
         sig_tmp_fh = None
 
-        pdf = pypdf.PdfFileReader(pdf_fh)
+        pdf = pypdf.PdfReader(pdf_fh)
         # Set y1 to pixels from top of page
         y1 = int(pdf.getPage(page_num).mediaBox[3] - y)
         print(pdf.getPage(page_num).mediaBox)
@@ -76,7 +76,7 @@ class ImageProcessor:
 
                 # Merge PDF in to original page
                 sig_tmp_fh = open(sig_tmp_filename, "rb")
-                sig_tmp_pdf = pypdf.PdfFileReader(sig_tmp_fh)
+                sig_tmp_pdf = pypdf.PdfReader(sig_tmp_fh)
                 sig_page = sig_tmp_pdf.getPage(0)
                 sig_page.mediaBox = page.mediaBox
                 page.mergePage(sig_page)
@@ -119,7 +119,7 @@ class ImageProcessor:
     def open_pdf(self, filename):
         try:
             pdfFileObject = open(filename, "rb")
-            pdf_reader = pypdf.PdfFileReader(pdfFileObject, strict=False)
+            pdf_reader = pypdf.PdfReader(pdfFileObject, strict=False)
             self.PAGE_COUNT = pdf_reader.numPages
             return pdf_reader
         except pypdf.errors.PdfReadError:
