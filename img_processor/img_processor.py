@@ -51,14 +51,12 @@ class ImageProcessor:
 
         pdf = pypdf.PdfReader(pdf_fh)
         # Set y1 to pixels from top of page
-        y1 = int(pdf.getPage(page_num).mediaBox[3] - y)
-        print(pdf.getPage(page_num).mediaBox)
-        print(y1)
-        writer = pypdf.PdfFileWriter()
+        y1 = int(pdf.pages[page_num].mediaBox[3] - y)
+        writer = pypdf.PdfWriter()
         sig_tmp_filename = None
 
-        for i in range(0, len(pdf.pages)):
-            page = pdf.getPage(i)
+        for i in enumerate(pdf.pages):
+            page = pdf.pages[i]
 
             if i == page_num:
                 # Create PDF for signature
@@ -77,7 +75,7 @@ class ImageProcessor:
                 # Merge PDF in to original page
                 sig_tmp_fh = open(sig_tmp_filename, "rb")
                 sig_tmp_pdf = pypdf.PdfReader(sig_tmp_fh)
-                sig_page = sig_tmp_pdf.getPage(0)
+                sig_page = sig_tmp_pdf.pages[0]
                 sig_page.mediaBox = page.mediaBox
                 page.mergePage(sig_page)
 
