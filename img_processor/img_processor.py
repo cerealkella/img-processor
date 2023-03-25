@@ -157,7 +157,7 @@ class ImageProcessor:
         for i in range(self.PAGE_COUNT):
             text += f"\n\n***PAGE {i+1} of {self.PAGE_COUNT}*** \n\n"
             page = pdfReader.pages[i]
-            embedded_text = page.extractText()
+            embedded_text = page.extract_text()
             # if embedded PDF text is minimal or does not exist,
             # run OCR the images extracted from the PDF
             if len(embedded_text) >= 100:
