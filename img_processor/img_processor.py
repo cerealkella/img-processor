@@ -1,16 +1,17 @@
 """Main module."""
-import PyPDF2
-import os
-import datetime
-import time
-import tempfile
-import mimetypes
-from uuid import uuid4
-from PIL import Image, TiffImagePlugin, ImageFont, ImageDraw
-from pdf2image import convert_from_path
-from pytesseract import image_to_string, TesseractError, image_to_osd, Output
-from reportlab.pdfgen import canvas
 import base64
+import datetime
+import mimetypes
+import os
+import tempfile
+import time
+from uuid import uuid4
+
+import PyPDF2
+from pdf2image import convert_from_path
+from PIL import Image, ImageDraw, ImageFont, TiffImagePlugin
+from pytesseract import Output, TesseractError, image_to_osd, image_to_string
+from reportlab.pdfgen import canvas
 
 
 class ImageProcessor:
