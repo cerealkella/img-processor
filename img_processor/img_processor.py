@@ -13,6 +13,8 @@ from reportlab.pdfgen import canvas
 
 
 class ImageProcessor:
+    """Class for processing images using python toolchain"""
+
     def __init__(self, language="eng"):
         self.set_language(language)
         self.TEMP_PATH = tempfile.gettempdir()
