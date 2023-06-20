@@ -2,7 +2,7 @@
 
 __author__ = """Justin Keller"""
 __email__ = "kellerjustin@protonmail.com"
-__version__ = "0.19.0"
+__version__ = "0.20.0"
 
 
 from .img_processor import ImageProcessor  # noqa
