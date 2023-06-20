@@ -11,13 +11,13 @@ with open("HISTORY.rst", encoding="utf-8") as history_file:
     history = history_file.read()
 
 requirements = [
-    "numpy>=1.20.1",
-    "Pillow>=8.1.0",
-    "Click>=7.0",
-    "pytesseract>=0.3.7",
-    "pdf2image>=1.14.0",
-    "pypdf>=3.6.0",
-    "reportlab==3.6.7",
+    "numpy>=1.24.3",
+    "Click>=8.1.3",
+    "Pillow>=9.5.0",
+    "pytesseract>=0.3.10",
+    "pdf2image>=1.16.3",
+    "pypdf>=3.10.0",
+    "reportlab>=4.0.4",
 ]
 
 setup_requirements = [
@@ -31,17 +31,19 @@ test_requirements = [
 setup(
     author="Justin Keller",
     author_email="kellerjustin@protonmail.com",
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     description="Python package for taking an image and doing a thing",
     entry_points={
